@@ -1,0 +1,65 @@
+.database-schema-container {
+  margin-top: 54px;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.example-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.db-buttons-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 26%;
+}
+
+.db-buttons-container .add-model {
+  margin-right: 12px;
+}
+
+.close-example {
+}
+
+.models-container {
+  margin-top: 56px;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.list-label {
+}
+
+/* NonFunctionalRequirementsForm.css */
+.models-group {
+  display: flex;
+  align-items: center;
+}
+
+.models-group .delete {
+  margin-right: 10px; /* Adds space between the icon and the textarea */
+  cursor: pointer; /* Makes the icon behave like a button */
+  color: darkred;
+}
+
+.bold-text {
+  font-weight: bolder;
+}
+
+.example-label {
+  color: darkgreen;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.padding-bottom-top {
+  margin-bottom: 1%;
+  margin-top: 1%;
+}
+
+.header {
+  font-size: 24px;
+}

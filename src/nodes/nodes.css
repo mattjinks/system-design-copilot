@@ -1,0 +1,78 @@
+.react-flow__node-default {
+  border-radius: 12px;
+  display: flex;
+  flex-direction: "column";
+  justify-content: center;
+  align-items: center;
+}
+
+.circle {
+  width: 125px;
+  height: 125px;
+  border-radius: 100%;
+  display: flex;
+  flex-direction: "column";
+  justify-content: center;
+  align-items: center;
+}
+
+.square {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  flex-direction: "column";
+  justify-content: center;
+  align-items: center;
+}
+
+.default {
+}
+
+.rectangle-long {
+  width: 200px;
+  height: 100px;
+  display: flex;
+  flex-direction: "column";
+  justify-content: center;
+  align-items: center;
+}
+
+.rectangle-tall {
+  width: 100px;
+  height: 200px;
+  display: flex;
+  flex-direction: "column";
+  justify-content: center;
+  align-items: center;
+}
+
+.edit {
+}
+
+.blue {
+  background-color: lightblue;
+}
+
+.green {
+  background-color: lightgreen;
+}
+
+.red {
+  background-color: #ff7b7b;
+}
+
+.pink {
+  background-color: #ffc0ec;
+}
+
+.orange {
+  background-color: #ffcc89;
+}
+
+.purple {
+  background-color: #d58dff;
+}
+
+.yellow {
+  background-color: #fffcc0;
+}

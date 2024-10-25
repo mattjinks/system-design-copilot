@@ -1,0 +1,65 @@
+.accordion-button:not(.collapsed) {
+  background-color: white;
+  color: black;
+  border: 1px solid black;
+  outline: none;
+}
+
+.accordion-item {
+  border: 0px solid black; /* Change this color to whatever you like */
+  border-radius: 8px; /* Optional: Add border radius */
+  margin-bottom: 10px; /* Optional: Space between items */
+}
+
+.accordion {
+  width: 76%;
+}
+
+.accordion-button {
+  background-color: white;
+  color: black;
+  outline: none;
+  border: 1px solid black;
+}
+
+.accordion-body {
+  border: 1px solid black;
+}
+
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.button-group .add-requirement {
+  margin-right: 10px; /* Adds space between the buttons */
+}
+
+.button-group .copilot {
+  margin-right: 24%; /* Adds space between the buttons */
+}
+
+.requirements-container {
+  margin-top: 60px;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.list-label {
+}
+
+/* NonFunctionalRequirementsForm.css */
+.requirement-group {
+  display: flex;
+  align-items: center;
+}
+
+.requirement-group .delete {
+  margin-right: 10px; /* Adds space between the icon and the textarea */
+  cursor: pointer; /* Makes the icon behave like a button */
+  color: darkred;
+}
+
+.header {
+  font-size: 24px;
+}

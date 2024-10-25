@@ -1,0 +1,16 @@
+.buttons-container {
+  padding-top: 12px;
+  position: fixed;
+  margin-left: 70%;
+  z-index: 10;
+}
+
+.buttons-container .add-component {
+  margin-right: 12px;
+}
+
+.custom-modal {
+  max-width: 50%;
+  width: 100%;
+}
+
