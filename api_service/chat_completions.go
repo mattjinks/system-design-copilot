@@ -424,7 +424,7 @@ func streamChat(c *gin.Context) {
 	c.Header("Content-Type", "text/event-stream")
 	c.Header("Cache-Control", "no-cache")
 	c.Header("Connection", "keep-alive")
-	c.Header("Access-Control-Allow-Origin", "http://localhost:5173") // Allow specific origin
+	c.Header("Access-Control-Allow-Origin", "https://main.d2oq7odcbvfay0.amplifyapp.com") // Allow specific origin
 
 	// Stream the completions as they are generated
 
