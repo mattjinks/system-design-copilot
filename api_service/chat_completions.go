@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/joho/godotenv"
+
 	"github.com/Azure/azure-sdk-for-go/sdk/ai/azopenai"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
@@ -22,17 +24,17 @@ type Position struct {
 }
 
 type Measured struct {
-	Width int `json:"width"`
+	Width  int `json:"width"`
 	Height int `json:"height"`
 }
 
 type Data struct {
-	Color string `json:"color"`
-	Label string `json:"label"`
-	LeftHandle string `json:"leftHandle"`
+	Color       string `json:"color"`
+	Label       string `json:"label"`
+	LeftHandle  string `json:"leftHandle"`
 	RightHandle string `json:"rightHandle"`
-	Notes string `json:"notes"`
-	Shape string `json:"shape"`
+	Notes       string `json:"notes"`
+	Shape       string `json:"shape"`
 }
 
 type Diagram struct {
@@ -41,79 +43,79 @@ type Diagram struct {
 }
 
 type Node struct {
-	Id string `json:"id"`
-	Data Data `json:"data"`
+	Id       string   `json:"id"`
+	Data     Data     `json:"data"`
 	Measured Measured `json:"measured"`
 	Position Position `json:"position"`
-	Type string `json:"type"`
+	Type     string   `json:"type"`
 }
 
 // Go back and fix id type
 type Edge struct {
-	Id string `json:"id"`
+	Id     string `json:"id"`
 	Source string `json:"source"`
 	Target string `json:"target"`
-	Type string `json:"type"`
+	Type   string `json:"type"`
 }
 
 type DatabaseSchema struct {
-	Models []Model `json:"models"`  // Fix JSON tag
+	Models []Model `json:"models"` // Fix JSON tag
 }
 
-type Model struct { 
-	Id int `json:"id"`
-	Name string `json:"name"`
-	Data []ModelData `json:"data"` //fix this
-	Notes string `json:"notes"`
+type Model struct {
+	Id    int         `json:"id"`
+	Name  string      `json:"name"`
+	Data  []ModelData `json:"data"` //fix this
+	Notes string      `json:"notes"`
 }
 
 type ModelData struct {
-	Id int `json:"id"`
+	Id   int    `json:"id"`
 	Text string `json:"text"`
 }
 
 type SystemAPIs struct {
-	Endpoints []Endpoint `json:"endpoints"`  // Fix JSON tag
+	Endpoints []Endpoint `json:"endpoints"` // Fix JSON tag
 }
 
-//fix this
+// fix this
 type Endpoint struct {
-	Id int `json:"id"`
-	Name string `json:"name"`
-	Params []Param `json:"params"`
+	Id      int      `json:"id"`
+	Name    string   `json:"name"`
+	Params  []Param  `json:"params"`
 	Returns []Return `json:"returns"`
-	Notes string `json:"notes"`
+	Notes   string   `json:"notes"`
 }
 
 type Param struct {
-	Id int `json:"id"`
+	Id   int    `json:"id"`
 	Text string `json:"text"`
 }
 
 type Return struct {
-	Id int `json:"id"`
+	Id   int    `json:"id"`
 	Text string `json:"text"`
 }
 
 type ScaleEstimates struct {
-	Capacity string `json:"capacity"`
-	Storage string `json:"storage"`
+	Capacity  string `json:"capacity"`
+	Storage   string `json:"storage"`
 	Bandwidth string `json:"bandwidth"`
 }
 
 type Requirement struct {
-	Id int `json:"id"`
+	Id   int    `json:"id"`
 	Text string `json:"text"`
 }
 
 type Requirements struct {
-	Functional []Requirement `json:"functional"`
+	Functional    []Requirement `json:"functional"`
 	NonFunctional []Requirement `json:"nonFunctional"`
-	Notes string `json:"notes"`
+	Notes         string        `json:"notes"`
 }
 
 type DescriptionRequest struct {
-	Description string `json:"description"`
+	Description  string       `json:"description"`
 	Requirements Requirements `json:"requirements"`
 }
 
@@ -130,22 +132,20 @@ type APIsRequest struct {
 }
 
 type DBSchemaRequest struct {
-
 }
 
 type DiagramRequest struct {
-
 }
 
 type OverallSystemRequest struct {
-	Description string `json:"description"`
-	Requirements Requirements `json:"requirements"`
-	ScaleEstimates ScaleEstimates `json:"scaleEstimates"`
-	SystemAPIs SystemAPIs `json:"systemAPIs"`
-	DatabaseSchema DatabaseSchema `json:"dbSchema"`
-	Diagram Diagram `json:"diagram"`
-	UserMessage string `json:"userMessage"`
-	ExtraConsiderations string`json:"extraConsiderations"`
+	Description         string         `json:"description"`
+	Requirements        Requirements   `json:"requirements"`
+	ScaleEstimates      ScaleEstimates `json:"scaleEstimates"`
+	SystemAPIs          SystemAPIs     `json:"systemAPIs"`
+	DatabaseSchema      DatabaseSchema `json:"dbSchema"`
+	Diagram             Diagram        `json:"diagram"`
+	UserMessage         string         `json:"userMessage"`
+	ExtraConsiderations string         `json:"extraConsiderations"`
 }
 
 // type UserMessage struct {
@@ -155,6 +155,12 @@ type OverallSystemRequest struct {
 var conversations = make(map[string][]azopenai.ChatRequestMessageClassification)
 
 func main() {
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+
 	router := gin.Default()
 	// router.GET("/chat-stream", streamChat) // Setup an HTTP GET endpoint
 	router.POST("/chat-stream", streamChat) // Setup an HTTP GET endpoint
@@ -162,7 +168,7 @@ func main() {
 	// Enable CORS for React app
 	router.Use(corsMiddleware())
 
-	router.Run("localhost:8080") // Run the Gin server on port 8080
+	router.Run("0.0.0.0:8080") // Run the Gin server on port 8080
 
 	// fmt.Fprintf("listening on port 8080\n")
 }
@@ -171,7 +177,7 @@ func main() {
 func corsMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Allow specific origin (your React app)
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, sessionId, chatKey")
 		c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Type")
@@ -191,7 +197,6 @@ func streamChat(c *gin.Context) {
 
 	// var req DescriptionRequest
 	// var system OverallSystemRequest
-
 
 	// if err := c.ShouldBindJSON(&system); err != nil {
 	// 	log.Printf("ERROR: %s", err)
@@ -219,9 +224,9 @@ func streamChat(c *gin.Context) {
 	var system OverallSystemRequest
 	bodyBytes, err := io.ReadAll(c.Request.Body)
 	if err != nil {
-			log.Printf("Error reading request body: %s", err)
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-			return
+		log.Printf("Error reading request body: %s", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
 	}
 	log.Printf("Received payload: %s", string(bodyBytes)) // Logs raw JSON request body
 
@@ -229,11 +234,10 @@ func streamChat(c *gin.Context) {
 	c.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 
 	if err := c.ShouldBindJSON(&system); err != nil {
-			log.Printf("ERROR: %s", err)
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-			return
+		log.Printf("ERROR: %s", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
 	}
-
 
 	// var system OverallSystemRequest
 	// bodyBytes, _ := io.ReadAll(c.Request.Body)
@@ -263,7 +267,6 @@ func streamChat(c *gin.Context) {
 	// log.Printf("%+v", system.DatabaseSchema.Models)
 
 	// log.Printf("%+v", system.Diagram)
-
 
 	azureOpenAIKey := os.Getenv("AZURE_OPENAI_API_KEY")
 	modelDeploymentID := os.Getenv("AZURE_OPENAI_CHAT_DEPLOYMENT")
@@ -347,18 +350,17 @@ func streamChat(c *gin.Context) {
 			return
 		}
 
-
 		conversation = []azopenai.ChatRequestMessageClassification{
 			systemMessage,
 			userMessage,
 			// &azopenai.ChatRequestSystemMessage{
-      //   Content: to.Ptr("You are a therapist giving me advice about handling breakup."),
-    	// },
+			//   Content: to.Ptr("You are a therapist giving me advice about handling breakup."),
+			// },
 			// &azopenai.ChatRequestUserMessage{
 			// 	Content: azopenai.NewChatRequestUserMessageContent("I miss my ex."),
 			// },
 		}
-		
+
 		conversations[sessionId+chatKey] = conversation
 
 	} else {
@@ -391,16 +393,15 @@ func streamChat(c *gin.Context) {
 		// Depending on the type of message, cast and print the content
 		switch v := msg.(type) {
 		case *azopenai.ChatRequestSystemMessage:
-				log.Printf("System Message: %s", *v.Content)
+			log.Printf("System Message: %s", *v.Content)
 		case *azopenai.ChatRequestUserMessage:
-				log.Printf("User Message: %s", *v.Content)
+			log.Printf("User Message: %s", *v.Content)
 		case *azopenai.ChatRequestAssistantMessage:
-				log.Printf("Model Message: %s", *v.Content)
+			log.Printf("Model Message: %s", *v.Content)
 		default:
-				log.Printf("Unknown message type")
+			log.Printf("Unknown message type")
 		}
 	}
-	
 
 	gotReply := false
 
@@ -412,7 +413,7 @@ func streamChat(c *gin.Context) {
 		MaxTokens:      &maxTokens,
 	}, nil)
 	defer resp.ChatCompletionsStream.Close()
-	
+
 	if err != nil {
 		log.Printf("ERROR: %s", err)
 		c.String(http.StatusInternalServerError, "Failed to get chat completions stream")
@@ -423,10 +424,10 @@ func streamChat(c *gin.Context) {
 	c.Header("Content-Type", "text/event-stream")
 	c.Header("Cache-Control", "no-cache")
 	c.Header("Connection", "keep-alive")
-	c.Header("Access-Control-Allow-Origin", "http://localhost:5173") // Allow specific origin  
+	c.Header("Access-Control-Allow-Origin", "http://localhost:5173") // Allow specific origin
 
 	// Stream the completions as they are generated
-	
+
 	fullText := ""
 	for {
 		chatCompletions, err := resp.ChatCompletionsStream.Read()
@@ -469,7 +470,7 @@ func streamChat(c *gin.Context) {
 			// Write the chat response as a server-sent event
 			fmt.Fprintf(c.Writer, "%s", text)
 			c.Writer.Flush() // Ensure data is sent immediately
-		
+
 		}
 	}
 

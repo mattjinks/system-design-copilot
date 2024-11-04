@@ -40,7 +40,7 @@ export default function CopilotService() {
       "userMessage": msg
     });
 
-    const response = await fetch(`http://localhost:8080/chat-stream?sessionId=${sessionId}&chatKey=${chatKey}`, {
+    const response = await fetch(`https://chat-api-service-1001003243492.us-central1.run.app/chat-stream?sessionId=${sessionId}&chatKey=${chatKey}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -100,7 +100,7 @@ export default function CopilotService() {
       console.error("Invalid chatKey", chatKey);
     }
 
-    const response = await fetch(`http://localhost:8080/chat-stream?sessionId=${sessionId}&chatKey=${chatKey}`, {
+    const response = await fetch(`https://chat-api-service-1001003243492.us-central1.run.app/chat-stream?sessionId=${sessionId}&chatKey=${chatKey}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
