@@ -1,5 +1,5 @@
 .database-schema-container {
-  margin-top: 54px;
+  margin-top: 72px;
   margin-left: 0;
   padding-left: 0;
 }
@@ -33,15 +33,14 @@
 .list-label {
 }
 
-/* NonFunctionalRequirementsForm.css */
 .models-group {
   display: flex;
   align-items: center;
 }
 
 .models-group .delete {
-  margin-right: 10px; /* Adds space between the icon and the textarea */
-  cursor: pointer; /* Makes the icon behave like a button */
+  margin-right: 10px;
+  cursor: pointer;
   color: darkred;
 }
 

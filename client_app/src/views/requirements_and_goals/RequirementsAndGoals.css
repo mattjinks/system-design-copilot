@@ -6,9 +6,9 @@
 }
 
 .accordion-item {
-  border: 0px solid black; /* Change this color to whatever you like */
-  border-radius: 8px; /* Optional: Add border radius */
-  margin-bottom: 10px; /* Optional: Space between items */
+  border: 0px solid black;
+  border-radius: 8px;
+  margin-bottom: 10px;
 }
 
 .accordion {
@@ -32,15 +32,15 @@
 }
 
 .button-group .add-requirement {
-  margin-right: 10px; /* Adds space between the buttons */
+  margin-right: 10px;
 }
 
 .button-group .copilot {
-  margin-right: 24%; /* Adds space between the buttons */
+  margin-right: 24%;
 }
 
 .requirements-container {
-  margin-top: 60px;
+  margin-top: 76px;
   margin-left: 0;
   padding-left: 0;
 }
@@ -48,15 +48,14 @@
 .list-label {
 }
 
-/* NonFunctionalRequirementsForm.css */
 .requirement-group {
   display: flex;
   align-items: center;
 }
 
 .requirement-group .delete {
-  margin-right: 10px; /* Adds space between the icon and the textarea */
-  cursor: pointer; /* Makes the icon behave like a button */
+  margin-right: 10px;
+  cursor: pointer;
   color: darkred;
 }
 

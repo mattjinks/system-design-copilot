@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100%; /* Ensure the container takes full height */
+  height: 100%;
   padding: 0px;
   border: 0px solid #ccc;
 }
@@ -10,14 +10,11 @@
 .chat-messages {
   flex-grow: 1;
   overflow-y: auto;
-  /* display: flex; */
-  /* margin-bottom: 10px; */
-  
 }
 
 .chat-input-container {
   display: flex;
-  align-items: flex-end; /* Aligns everything at the bottom of the container */
+  align-items: flex-end;
   justify-content: space-between;
   width: 100%;
   margin-top: 10px;
@@ -29,18 +26,17 @@
   overflow: hidden;
   padding: 10px;
   margin-right: 10px;
-  font-size: 12px; /* Adjust the font size */
+  font-size: 12px;
 }
 
 .send-button {
-  
   display: flex;
-  align-items: flex-end; /* Ensure the button is aligned at the bottom */
+  align-items: flex-end;
   background-color: #007bff;
   color: white;
   border-radius: 5px;
   padding: 5px 15px;
-  height: auto; /* Ensures button height remains appropriate */
+  height: auto;
 }
 
 .msg {
@@ -50,7 +46,7 @@
 }
 .user-message {
   display: inline-block;
-  background-color: #f4f4f4;
+  background-color: #f4f4f4ec;
   padding: 10px;
   border-radius: 10px;
   text-align: left;
@@ -75,21 +71,11 @@
 }
 
 .copilot {
-  /* padding: 0; */
-  /* margin: 0; */
 }
 
-
 .copilot-message {
-  /* background-color: #f1f1f1; 
-  padding: 10px;
-  border-radius: 10px;
-  text-align: left;
-  max-width: 100%;
-  word-wrap: break-word;
-  margin-bottom: 1%; */
 }
 
 .custom-offcanvas {
-  width: 40vw !important; /* !important ensures the custom width is applied */
+  width: 50vw !important;
 }

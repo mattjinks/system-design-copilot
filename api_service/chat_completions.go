@@ -131,12 +131,6 @@ type APIsRequest struct {
 	Description string `json:"description"`
 }
 
-type DBSchemaRequest struct {
-}
-
-type DiagramRequest struct {
-}
-
 type OverallSystemRequest struct {
 	Description         string         `json:"description"`
 	Requirements        Requirements   `json:"requirements"`
@@ -146,6 +140,7 @@ type OverallSystemRequest struct {
 	Diagram             Diagram        `json:"diagram"`
 	UserMessage         string         `json:"userMessage"`
 	ExtraConsiderations string         `json:"extraConsiderations"`
+	Reevaluation        bool           `json:"reevaluation"`
 }
 
 // type UserMessage struct {
@@ -162,48 +157,33 @@ func main() {
 	}
 
 	router := gin.Default()
-	// router.GET("/chat-stream", streamChat) // Setup an HTTP GET endpoint
-	router.POST("/chat-stream", streamChat) // Setup an HTTP GET endpoint
-
-	// Enable CORS for React app
+	// router.GET("/chat-stream", streamChat)
 	router.Use(corsMiddleware())
 
-	router.Run("0.0.0.0:8080") // Run the Gin server on port 8080
+	router.POST("/chat-stream", streamChat) 
 
-	// fmt.Fprintf("listening on port 8080\n")
+	router.Run("0.0.0.0:8080") 
+	// router.Run("localhost:8080") 
+
 }
 
-// CORS middleware to allow cross-origin requests
 func corsMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Allow specific origin (your React app)
-		// c.Writer.Header().Set("Access-Control-Allow-Origin", "https://main.d2oq7odcbvfay0.amplifyapp.com")
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "https://main.d2oq7odcbvfay0.amplifyapp.com")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, sessionId, chatKey")
-		c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Type")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
 			return
 		}
 
-		// Continue to the next middleware or handler
 		c.Next()
 	}
 }
 
-// HTTP handler to stream chat completions
 func streamChat(c *gin.Context) {
-
-	// var req DescriptionRequest
-	// var system OverallSystemRequest
-
-	// if err := c.ShouldBindJSON(&system); err != nil {
-	// 	log.Printf("ERROR: %s", err)
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-	// 	return
-	// }
 
 	sessionId := c.Query("sessionId")
 	if sessionId == "" {
@@ -229,9 +209,7 @@ func streamChat(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
-	log.Printf("Received payload: %s", string(bodyBytes)) // Logs raw JSON request body
-
-	// Re-create the request body from the bytes for binding
+	log.Printf("Received payload: %s", string(bodyBytes)) 
 	c.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 
 	if err := c.ShouldBindJSON(&system); err != nil {
@@ -240,34 +218,10 @@ func streamChat(c *gin.Context) {
 		return
 	}
 
-	// var system OverallSystemRequest
-	// bodyBytes, _ := io.ReadAll(c.Request.Body)
-	// log.Printf("Received payload: %s", string(bodyBytes)) // Logs raw JSON request body
-
-	// if err := c.ShouldBindJSON(&system); err != nil {
-	// 		log.Printf("ERROR: %s", err)
-	// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-	// 		return
-	// }
-
-	// log.Printf("%+v", system.Description)
-
-	// // log.Printf("%+v", req.Requirements)
-	// log.Printf("%+v", system.Requirements.Functional)
-	// log.Printf("%+v", system.Requirements.NonFunctional)
-	// log.Printf("%+v", system.Requirements.Notes)
-
-	// // log.Printf("%+v", req.ScaleEstimates)
-	// log.Printf("%+v", system.ScaleEstimates.Capacity)
-	// log.Printf("%+v", system.ScaleEstimates.Storage)
-	// log.Printf("%+v", system.ScaleEstimates.Bandwidth)
-
-	// // log.Printf("%+v", system.SystemAPIs)
-	// log.Printf("%+v", system.SystemAPIs.Endpoints)
-
-	// log.Printf("%+v", system.DatabaseSchema.Models)
-
-	// log.Printf("%+v", system.Diagram)
+	if system.Reevaluation {
+		delete(conversations, sessionId+chatKey)
+		log.Printf("Reevaluation, Removed conversation for sessionId: %s and chatKey: %s", sessionId, chatKey)
+	}
 
 	azureOpenAIKey := os.Getenv("AZURE_OPENAI_API_KEY")
 	modelDeploymentID := os.Getenv("AZURE_OPENAI_CHAT_DEPLOYMENT")
@@ -289,6 +243,7 @@ func streamChat(c *gin.Context) {
 	}
 
 	conversation, exists := conversations[sessionId+chatKey]
+	log.Printf("exists: %s", exists)
 	if !exists {
 		log.Printf("Session ID doesn't exist")
 		systemMessage := &azopenai.ChatRequestSystemMessage{
@@ -301,49 +256,96 @@ func streamChat(c *gin.Context) {
 			log.Printf("Description Prompt")
 			userMessage = &azopenai.ChatRequestUserMessage{
 				Content: azopenai.NewChatRequestUserMessageContent(
-					fmt.Sprintf(`Here is a description of the system I plan to design: '%s'. Could you assess whether this description is clear in 2-3 sentences? Your response should start with "Your description of"`, system.Description),
+					fmt.Sprintf(
+						`Here is a description of the system I plan to design: '%s'. 
+						Could you assess whether this description is clear in 2-3 sentences? 
+						Your response should start with "Your description of"`, 
+						system.Description,
+					),
 				),
 			}
 		case "requirements":
 			log.Printf("Requirements Prompt")
 			userMessage = &azopenai.ChatRequestUserMessage{
 				Content: azopenai.NewChatRequestUserMessageContent(
-					fmt.Sprintf("Please evaluate if these system requirements: '%v' align well with the system's overall description: '%s'.", system.Requirements, system.Description),
+					fmt.Sprintf(
+						`Please evaluate if these system requirements: '%v' align well with the system's overall description: '%s'.`, 
+						system.Requirements, 
+						system.Description,
+					),
 				),
 			}
 		case "scaleEstimates":
 			log.Printf("scaleEstimates Prompt")
 			userMessage = &azopenai.ChatRequestUserMessage{
 				Content: azopenai.NewChatRequestUserMessageContent(
-					fmt.Sprintf("Based on the system description '%s' and requirements '%v', do these scale estimates: '%v' seem appropriate?", system.Description, system.Requirements, system.ScaleEstimates),
+					fmt.Sprintf(
+						"Based on the system description '%s' and requirements '%v', do these scale estimates: '%v' seem appropriate?", 
+						system.Description, 
+						system.Requirements, 
+						system.ScaleEstimates,
+					),
 				),
 			}
 		case "apis":
 			log.Printf("APIs Prompt")
 			userMessage = &azopenai.ChatRequestUserMessage{
 				Content: azopenai.NewChatRequestUserMessageContent(
-					fmt.Sprintf("Evaluate these API endpoints: '%v' and let me know if they align with the system description '%s', requirements '%v', and scale estimates '%v'.", system.SystemAPIs, system.Description, system.Requirements, system.ScaleEstimates),
+					fmt.Sprintf(
+						`Evaluate these API endpoints: '%v' and let me know if they align with the system description '%s', requirements '%v', 
+						and scale estimates '%v'.`, 
+						system.SystemAPIs, 
+						system.Description, 
+						system.Requirements, 
+						system.ScaleEstimates,
+					),
 				),
 			}
 		case "dbSchema":
 			log.Printf("db schema Prompt")
 			userMessage = &azopenai.ChatRequestUserMessage{
 				Content: azopenai.NewChatRequestUserMessageContent(
-					fmt.Sprintf("Evaluate these API endpoints: '%v' and let me know if they align with the system description '%s', requirements '%v', and scale estimates '%v'.", system.SystemAPIs, system.Description, system.Requirements, system.ScaleEstimates),
+					fmt.Sprintf(
+						`Evaluate my database-schema/models: '%v' and let me know if they align with the system description '%s', requirements '
+						%v', scale estimates '%v', and apis.`, 
+						system.DatabaseSchema, 
+						system.Description, 
+						system.Requirements, 
+						system.ScaleEstimates, 
+						system.SystemAPIs,
+					),
 				),
 			}
 		case "diagram":
 			log.Printf("diagram Prompt")
 			userMessage = &azopenai.ChatRequestUserMessage{
 				Content: azopenai.NewChatRequestUserMessageContent(
-					fmt.Sprintf("Assess this system flow diagram: '%v' and let me know if it aligns with the system description '%s', requirements '%v', scale estimates '%v', API endpoints '%v', and database schema '%v'.", system.Diagram, system.Description, system.Requirements, system.ScaleEstimates, system.SystemAPIs, system.DatabaseSchema),
+					fmt.Sprintf(`
+						Assess this system flow diagram: '%v' and let me know if it aligns with the system description '%s', requirements '%v', 
+						scale estimates '%v', API endpoints '%v', and database schema '%v'.`, 
+						system.Diagram, 
+						system.Description, 
+						system.Requirements, 
+						system.ScaleEstimates, 
+						system.SystemAPIs, 
+						system.DatabaseSchema,
+					),
 				),
 			}
 		case "extra":
 			log.Printf("extra Prompt")
 			userMessage = &azopenai.ChatRequestUserMessage{
 				Content: azopenai.NewChatRequestUserMessageContent(
-					fmt.Sprintf("Please evaluate these additional considerations/notes: '%v' to see if they align with the system description '%s', requirements '%v', scale estimates '%v', API endpoints '%v', database schema '%v', and flow diagram '%v'.", system.ExtraConsiderations, system.Description, system.Requirements, system.ScaleEstimates, system.SystemAPIs, system.DatabaseSchema, system.Diagram),
+					fmt.Sprintf(`Please evaluate these additional considerations/notes: '%v' to see if they align with the system description '
+					%s', requirements '%v', scale estimates '%v', API endpoints '%v', database schema '%v', and flow diagram '%v'.`, 
+					system.ExtraConsiderations, 
+					system.Description, 
+					system.Requirements, 
+					system.ScaleEstimates, 
+					system.SystemAPIs, 
+					system.DatabaseSchema, 
+					system.Diagram,
+				),
 				),
 			}
 		default:
@@ -354,44 +356,22 @@ func streamChat(c *gin.Context) {
 		conversation = []azopenai.ChatRequestMessageClassification{
 			systemMessage,
 			userMessage,
-			// &azopenai.ChatRequestSystemMessage{
-			//   Content: to.Ptr("You are a therapist giving me advice about handling breakup."),
-			// },
-			// &azopenai.ChatRequestUserMessage{
-			// 	Content: azopenai.NewChatRequestUserMessageContent("I miss my ex."),
-			// },
 		}
 
 		conversations[sessionId+chatKey] = conversation
 
 	} else {
-		// Log the session conversation properly by iterating over the slice
+
 		if exists {
 			log.Printf("Length of conversation: %v", len(conversation))
 			conversations[sessionId+chatKey] = append(conversations[sessionId+chatKey], &azopenai.ChatRequestUserMessage{
 				Content: azopenai.NewChatRequestUserMessageContent(system.UserMessage),
 			})
-			// log.Printf("Conversation length: %d", len(conversations[sessionId+chatKey]))
 			log.Printf("Session %s conversation:", sessionId+chatKey)
-			// for _, msg := range conversation {
-			// 		// Depending on the type of message, cast and print the content
-			// 		switch v := msg.(type) {
-			// 		case *azopenai.ChatRequestSystemMessage:
-			// 				log.Printf("System Message: %s", *v.Content)
-			// 		case *azopenai.ChatRequestUserMessage:
-			// 				log.Printf("User Message: %s", *v.Content)
-			// 		case *azopenai.ChatRequestAssistantMessage:
-			// 				log.Printf("Model Message: %s", *v.Content)
-			// 		default:
-			// 				log.Printf("Unknown message type")
-			// 		}
-			// }
 		}
-		//log.Printf("Session %s conversation: %v", sessionId, conversations[sessionId])
 	}
 
 	for _, msg := range conversations[sessionId+chatKey] {
-		// Depending on the type of message, cast and print the content
 		switch v := msg.(type) {
 		case *azopenai.ChatRequestSystemMessage:
 			log.Printf("System Message: %s", *v.Content)
@@ -406,7 +386,6 @@ func streamChat(c *gin.Context) {
 
 	gotReply := false
 
-	// Send the request to OpenAI
 	resp, err := client.GetChatCompletionsStream(context.TODO(), azopenai.ChatCompletionsOptions{
 		Messages:       conversations[sessionId+chatKey],
 		N:              to.Ptr[int32](1),
@@ -421,14 +400,15 @@ func streamChat(c *gin.Context) {
 		return
 	}
 
-	// Set response headers for Server-Sent Events (SSE)
 	c.Header("Content-Type", "text/event-stream")
 	c.Header("Cache-Control", "no-cache")
 	c.Header("Connection", "keep-alive")
-	c.Header("Access-Control-Allow-Origin", "*") // Allow specific origin
-	// c.Header("Access-Control-Allow-Origin", "https://main.d2oq7odcbvfay0.amplifyapp.com") // Allow specific origin
+	c.Header("Access-Control-Allow-Origin", "https://main.d2oq7odcbvfay0.amplifyapp.com")
+	c.Header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Authorization, sessionId, chatKey")
+	c.Header("Access-Control-Allow-Credentials", "true")
 
-	// Stream the completions as they are generated
+	// c.Header("Access-Control-Allow-Origin", "https://main.d2oq7odcbvfay0.amplifyapp.com")
 
 	fullText := ""
 	for {
@@ -454,24 +434,8 @@ func streamChat(c *gin.Context) {
 
 			fullText = fullText + text
 
-			// if len(text) > 0 && strings.HasSuffix(text, " ") {
-			// 	trimmed := strings.TrimSpace(text)
-			// 	if strings.HasSuffix(trimmed, "!") || strings.HasSuffix(trimmed, "?") || strings.HasSuffix(trimmed, ".") {
-			// 			text = trimmed // Remove trailing space if there's punctuation
-			// 	}
-			// }
-
-			//role := ""
-
-			// if choice.Delta.Role != nil {
-			// 	role = string(*choice.Delta.Role)
-			// }
-
-			// fmt.Fprintf(os.Stderr, "Content[%d], role %q: %q\n", *choice.Index, role, text)
-
-			// Write the chat response as a server-sent event
 			fmt.Fprintf(c.Writer, "%s", text)
-			c.Writer.Flush() // Ensure data is sent immediately
+			c.Writer.Flush()
 
 		}
 	}
@@ -479,10 +443,6 @@ func streamChat(c *gin.Context) {
 	conversations[sessionId+chatKey] = append(conversations[sessionId+chatKey], &azopenai.ChatRequestAssistantMessage{
 		Content: to.Ptr(fullText),
 	})
-
-	// c.JSON(http.StatusOK, gin.H{
-	// 	"message": "pong",
-	// })
 
 	if gotReply {
 		fmt.Fprintf(os.Stderr, "Got chat completions streaming reply\n")

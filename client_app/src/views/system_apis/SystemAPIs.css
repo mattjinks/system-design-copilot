@@ -22,7 +22,7 @@
 }
 
 .copilot {
-  margin-right: 25%
+  margin-right: 25%;
 }
 
 .close-example {
@@ -37,15 +37,14 @@
 .list-label {
 }
 
-/* NonFunctionalRequirementsForm.css */
 .endpoints-group {
   display: flex;
   align-items: center;
 }
 
 .endpoints-group .delete {
-  margin-right: 10px; /* Adds space between the icon and the textarea */
-  cursor: pointer; /* Makes the icon behave like a button */
+  margin-right: 10px;
+  cursor: pointer;
   color: darkred;
 }
 

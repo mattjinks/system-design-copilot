@@ -1,12 +1,9 @@
-import React, { useState, useRef } from "react";
-import { Form, Button, Container, Row, Col, Accordion } from "react-bootstrap";
-import FunctionalRequirementsForm from "./FunctionalRequirementsForm";
+import React, { useState } from "react";
+import { Button, Container } from "react-bootstrap";
 import "./DatabaseSchema.css";
-import EndpointsForm from "./child_components/EndpointsForm";
 
 import DataModelsForm from "./child_components/DataModelsForm";
 import Example from "./child_components/Example";
-import Copilot from "../copilot/Copilot";
 
 export default function DatabaseSchema() {
   const [closeExample, setCloseExample] = useState(true);
@@ -36,7 +33,7 @@ export default function DatabaseSchema() {
           See Example
         </Button>
         <DataModelsForm />
-        <br/>
+        <br />
       </Container>
     </>
   );

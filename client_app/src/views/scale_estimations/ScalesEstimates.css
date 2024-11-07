@@ -1,0 +1,72 @@
+.calculation {
+  margin: 0;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  margin-top: 0;
+  margin-bottom: 0;
+  text-align: center;
+  font-style: italic;
+}
+
+.padding-bottom {
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 12px;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: white;
+  color: black;
+  border: 2px solid black;
+  outline: none;
+}
+
+.accordion-button {
+  background-color: white;
+  color: black;
+  outline: none;
+  border: 2px solid black;
+}
+
+.accordion-body {
+  border: 2px solid black;
+}
+
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.button-group .add-requirement {
+  margin-right: 10px;
+}
+
+.button-group .copilot {
+  margin-right: 24%;
+}
+
+.scale-container {
+  margin-top: 76px;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.list-label {
+}
+
+.requirement-group {
+  display: flex;
+  align-items: center;
+}
+
+.requirement-group .delete {
+  margin-right: 10px;
+  cursor: pointer;
+  color: darkred;
+}
+
+.header {
+  font-size: 24px;
+}

@@ -1,6 +1,5 @@
-import React, { useState, useRef } from "react";
-import { Form, Button, Container, Row, Col, Card } from "react-bootstrap";
-import CloseIcon from "@mui/icons-material/Close";
+import React from "react";
+import { Form, Button, Card } from "react-bootstrap";
 import "../SystemAPIs.css";
 
 type ExampleProps = {
@@ -15,14 +14,17 @@ export default function EndpointsForm({ show, handleClose }: ExampleProps) {
 
   return (
     <>
-      <Card hidden={show} className="mb-3" style={{ fontSize: "12px", width: "74%" }}>
+      <Card
+        hidden={show}
+        className="mb-3"
+        style={{ fontSize: "12px", width: "74%" }}
+      >
         <Card.Body>
-          {/* Endpoint Name */}
           <div className="example-header">
             <h3 className="header">Example</h3>
             <div>
-              <Button variant="danger" onClick={() => closeExample()}>
-                X Close
+              <Button variant="outline-danger" onClick={() => closeExample()}>
+                Close
               </Button>
             </div>
           </div>
@@ -42,7 +44,6 @@ export default function EndpointsForm({ show, handleClose }: ExampleProps) {
             <div>searchVideo()</div>
           </Form.Group>
 
-          {/* Parameters */}
           <Form.Group className="mb-3">
             <Form.Label className="example-label">Parameters:</Form.Label>
             <div>

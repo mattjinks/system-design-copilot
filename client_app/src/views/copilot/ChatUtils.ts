@@ -1,7 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { ChatKey, Message } from "../../state/types";
 import { SystemDesignState } from "../../state/FlowStateContext";
-import Description from "../description/Description";
 
 export const useAddGPTMessage = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
@@ -34,15 +33,15 @@ export const useAddGPTMessage = (
 
 export const useUpdateGPTMessage = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (chatKey: ChatKey, id: number, newText: string) => {
       console.log("Update Copilot Message", newText);
-      
+
       setSystemDesignState((prevState: SystemDesignState) => {
         const messages = prevState.chats.get(chatKey) || [];
         console.log("messages", messages);
-        const updatedMessages = messages.map((msg) => 
+        const updatedMessages = messages.map((msg) =>
           msg.id === id ? { ...msg, text: msg.text + newText } : msg
         );
         console.log("udpdated messages", updatedMessages);
@@ -58,9 +57,7 @@ export const useUpdateGPTMessage = (
     [setSystemDesignState]
   );
 
-export const useGenerateMessageId = (
-  systemDesignState: SystemDesignState
-) =>
+export const useGenerateMessageId = (systemDesignState: SystemDesignState) =>
   useCallback(
     (chatKey: ChatKey) => {
       console.log("Generate Message Id");
@@ -77,7 +74,7 @@ export const useGenerateMessageId = (
 export const useAddUserMessage = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>,
   generateMessageId: (chatKey: ChatKey) => number
-) => 
+) =>
   useCallback(
     (chatKey: ChatKey, text: string) => {
       console.log("Add User Message", text);
@@ -106,9 +103,7 @@ export const useAddUserMessage = (
     [setSystemDesignState, generateMessageId]
   );
 
-export const useGetCopilotMessage = (
-  systemDesignState: SystemDesignState
-) => {
+export const useGetCopilotMessage = (systemDesignState: SystemDesignState) => {
   return useCallback(
     (chatKey: ChatKey, id: number) => {
       console.log("Get Copilot Message");
@@ -119,31 +114,28 @@ export const useGetCopilotMessage = (
   );
 };
 
-
-
-
 export function ChatUtils() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
-  const [currentGPTResponse, setCurrentGPTResponse] = useState('');
+  const [input, setInput] = useState("");
+  const [currentGPTResponse, setCurrentGPTResponse] = useState("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  
+
   function addCopilotMessage(id: number, text: string) {
     console.log("Add Copilot message");
     const newMessage: Message = { id: id, role: "copilot", text };
     setMessages((prevMessages) => [...prevMessages, newMessage]);
-    console.log("Chat Utils Messages length: ", messages.length)
+    console.log("Chat Utils Messages length: ", messages.length);
     if (inputRef.current) inputRef.current.style.height = "auto";
   }
 
   function getCopilotMessage(id: number) {
-    const msg = messages.find((msg) => (msg.id === id));
+    const msg = messages.find((msg) => msg.id === id);
     return msg;
   }
 
   function updateCopilotMessage(id: number, newText: string) {
     setMessages((prevMessages) =>
-      prevMessages.map((msg) => 
+      prevMessages.map((msg) =>
         msg.id === id ? { ...msg, text: newText } : msg
       )
     );
@@ -151,8 +143,8 @@ export function ChatUtils() {
 
   function generateMessageId() {
     let id = messages.length;
-    while (messages.some(msg => msg.id === id)) {
-      id++; // Increment until available id found
+    while (messages.some((msg) => msg.id === id)) {
+      id++;
     }
     return id;
   }
@@ -160,12 +152,16 @@ export function ChatUtils() {
   function addUserMessage(text: string) {
     console.log("add user message");
     if (text.trim()) {
-      const newMessage: Message = { id: generateMessageId(), role: "user", text };
+      const newMessage: Message = {
+        id: generateMessageId(),
+        role: "user",
+        text,
+      };
       setMessages((prevMessages) => [...prevMessages, newMessage]);
       setInput("");
       if (inputRef.current) inputRef.current.style.height = "auto";
     }
-    console.log("Chat Utils Messages length: ", messages.length)
+    console.log("Chat Utils Messages length: ", messages.length);
   }
 
   return {
@@ -183,8 +179,3 @@ export function ChatUtils() {
     generateMessageId,
   };
 }
-
-
-  // setMessages((prevMessages) => [...prevMessages, newMessage]);
-  // console.log("Chat Utils Messages length: ", messages.length)
-  // if (inputRef.current) inputRef.current.style.height = "auto";

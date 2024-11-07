@@ -9,22 +9,20 @@ import {
   NodePositionChange,
 } from "@xyflow/react";
 import { useCallback } from "react";
-import { AppNode } from "../nodes/types";
-import "./types"
+import { AppNode } from "../views/components_diagram/nodes/types";
+import "./types";
 import { useSystemDesignState, SystemDesignState } from "./FlowStateContext";
 import { Endpoint, Model, Requirement } from "./types";
 
-type FlowKey = "1" | "2" | "3" | "4"; // Restrict the possible keys
-
 export const useUpdateFeedbackHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (text: string) => {
-      console.log('useUpdateFeedbackHandler', text);
+      console.log("useUpdateFeedbackHandler", text);
       setSystemDesignState((prevState: SystemDesignState) => ({
         ...prevState,
-        feedback: prevState.feedback + text
+        feedback: prevState.feedback + text,
       }));
     },
     [setSystemDesignState]
@@ -32,13 +30,13 @@ export const useUpdateFeedbackHandler = (
 
 export const useClearFeedbackHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (text: string) => {
-      console.log('useUpdateFeedbackHandler', text);
+      console.log("useUpdateFeedbackHandler", text);
       setSystemDesignState((prevState: SystemDesignState) => ({
         ...prevState,
-        feedback:text
+        feedback: text,
       }));
     },
     [setSystemDesignState]
@@ -46,10 +44,10 @@ export const useClearFeedbackHandler = (
 
 export const useUpdateDescriptionHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (text: string) => {
-      console.log('useUpdateDescriptionHandler', text);
+      console.log("useUpdateDescriptionHandler", text);
       setSystemDesignState((prevState: SystemDesignState) => ({
         ...prevState,
         description: text,
@@ -58,13 +56,27 @@ export const useUpdateDescriptionHandler = (
     [setSystemDesignState]
   );
 
+export const useUpdateExtraConsiderationsHandler = (
+  setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
+) =>
+  useCallback(
+    (text: string) => {
+      console.log("useUpdateExtraConsiderationsHandler", text);
+      setSystemDesignState((prevState: SystemDesignState) => ({
+        ...prevState,
+        extraConsiderations: text,
+      }));
+    },
+    [setSystemDesignState]
+  );
+
 export const useUpdateModelHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (updatedModels: Model[]) => {
-      console.log('useUpdateModelHandler', updatedModels);
-      
+      console.log("useUpdateModelHandler", updatedModels);
+
       setSystemDesignState((prevState: SystemDesignState) => ({
         ...prevState,
         dbSchema: {
@@ -78,37 +90,50 @@ export const useUpdateModelHandler = (
 
 export const useAddModelHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
+  useCallback(() => {
+    console.log("useAddModelHandler");
+
+    setSystemDesignState((prevState: SystemDesignState) => {
+      const models = prevState.dbSchema.models;
+
+      let newId = models.length;
+
+      while (models.some((model) => model.id === newId)) {
+        newId++;
+      }
+
+      const newModel = {
+        id: newId,
+        name: "",
+        data: [],
+        notes: "",
+      };
+
+      return {
+        ...prevState,
+        dbSchema: {
+          ...prevState.dbSchema,
+          models: [...models, newModel],
+        },
+      };
+    });
+  }, [setSystemDesignState]);
+
+export const useDeleteModelHandler = (
+  setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
+) =>
   useCallback(
-    () => {
-      console.log('useAddModelHandler');
-      
+    (modelId: number) => {
+      console.log("useDeleteModelHandler");
       setSystemDesignState((prevState: SystemDesignState) => {
         const models = prevState.dbSchema.models;
-        
-        // Find the next available id by checking if the length exists
-        let newId = models.length;
-
-        // Ensure there isn't already an ID matching the current length
-        while (models.some(model => model.id === newId)) {
-          newId++; // Increment until you find an available id
-        }
-
-        const newModel = {
-          id: newId,
-          name: '',
-          data: [], // Initialize empty data
-          notes: '',
-        };
 
         return {
           ...prevState,
           dbSchema: {
             ...prevState.dbSchema,
-            models: [
-              ...models, 
-              newModel // Use the computed newId
-            ],
+            models: models.filter((model) => model.id !== modelId),
           },
         };
       });
@@ -116,38 +141,13 @@ export const useAddModelHandler = (
     [setSystemDesignState]
   );
 
-  
-export const useDeleteModelHandler = (
-  setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
-  useCallback(
-    (modelId: number) => {
-      console.log('useDeleteModelHandler', );
-      setSystemDesignState((prevState: SystemDesignState) => {
-
-        const models = prevState.dbSchema.models;
-
-        return {
-          ...prevState,
-          dbSchema: {
-            ...prevState.dbSchema,
-            models: models.filter(
-              (model) =>  model.id !== modelId
-            ),
-          }
-        };
-      });
-    },
-    [setSystemDesignState]
-  );
-  
 export const useUpdateModelNameHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (modelId: number, name: string) => {
-      console.log('useUpdateModelNameHandler', modelId, name);
-      
+      console.log("useUpdateModelNameHandler", modelId, name);
+
       setSystemDesignState((prevState: SystemDesignState) => {
         const models = prevState.dbSchema.models;
 
@@ -155,17 +155,15 @@ export const useUpdateModelNameHandler = (
           ...prevState,
           dbSchema: {
             ...prevState.dbSchema,
-            models: models.map(
-              (model) => 
-                model.id === modelId 
-                  ? {
+            models: models.map((model) =>
+              model.id === modelId
+                ? {
                     ...model,
                     name: name,
                   }
-                  : model
+                : model
             ),
           },
-
         };
       });
     },
@@ -174,11 +172,11 @@ export const useUpdateModelNameHandler = (
 
 export const useUpdateModelNotesHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (modelId: number, notes: string) => {
-      console.log('useUpdateModelNotesHandler', modelId, notes);
-      
+      console.log("useUpdateModelNotesHandler", modelId, notes);
+
       setSystemDesignState((prevState: SystemDesignState) => {
         const models = prevState.dbSchema.models;
 
@@ -186,31 +184,28 @@ export const useUpdateModelNotesHandler = (
           ...prevState,
           dbSchema: {
             ...prevState.dbSchema,
-            models: models.map(
-              (model) => 
-                model.id === modelId 
-                  ? {
+            models: models.map((model) =>
+              model.id === modelId
+                ? {
                     ...model,
                     notes: notes,
                   }
-                  : model
+                : model
             ),
           },
-
         };
       });
     },
     [setSystemDesignState]
   );
-  
 
 export const useUpdateDataHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (modelId: number, dataId: number, dataText: string) => {
-      console.log('useUpdateDataHandler', modelId, dataId, dataText);
-      
+      console.log("useUpdateDataHandler", modelId, dataId, dataText);
+
       setSystemDesignState((prevState: SystemDesignState) => {
         const models = prevState.dbSchema.models;
 
@@ -218,18 +213,15 @@ export const useUpdateDataHandler = (
           ...prevState,
           dbSchema: {
             ...prevState.dbSchema,
-            models: models.map(
-              (model) => 
-                model.id === modelId 
-                  ? {
+            models: models.map((model) =>
+              model.id === modelId
+                ? {
                     ...model,
                     data: model.data.map((data) =>
-                      data.id === dataId
-                        ? { ...data, text: dataText } // Update data text
-                        : data
+                      data.id === dataId ? { ...data, text: dataText } : data
                     ),
                   }
-                  : model
+                : model
             ),
           },
         };
@@ -240,11 +232,11 @@ export const useUpdateDataHandler = (
 
 export const useDeleteDataHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (modelId: number, dataId: number) => {
-      console.log('useUpdateDataHandler', modelId, dataId);
-      
+      console.log("useUpdateDataHandler", modelId, dataId);
+
       setSystemDesignState((prevState: SystemDesignState) => {
         const models = prevState.dbSchema.models;
 
@@ -252,20 +244,16 @@ export const useDeleteDataHandler = (
           ...prevState,
           dbSchema: {
             ...prevState.dbSchema,
-            models: models.map(
-              (model) => 
-                model.id === modelId 
-                  ? {
+            models: models.map((model) =>
+              model.id === modelId
+                ? {
                     ...model,
-                    data: model.data.filter((data) =>
-                      data.id !== dataId 
-                    )
+                    data: model.data.filter((data) => data.id !== dataId),
                   }
-                  : model
+                : model
             ),
           },
         };
-        
       });
     },
     [setSystemDesignState]
@@ -273,19 +261,19 @@ export const useDeleteDataHandler = (
 
 export const useAddDataHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (modelId: number) => {
-      console.log('useAddDataHandler');
-      
+      console.log("useAddDataHandler");
+
       setSystemDesignState((prevState: SystemDesignState) => {
         const models = prevState.dbSchema.models;
         const model = models.find((model) => model.id === modelId);
         const data = model!.data;
         let newId = data.length;
 
-        while (data.some(data => data.id === newId)) {
-          newId++; // Increment until available id found
+        while (data.some((data) => data.id === newId)) {
+          newId++;
         }
 
         return {
@@ -293,16 +281,13 @@ export const useAddDataHandler = (
           dbSchema: {
             ...prevState.dbSchema,
             models: models.map((model) =>
-              model.id === modelId 
-                ?  {
-                  ...model,
-                  data: [
-                    ...data,
-                    { id: newId, text: '' }
-                  ]
-                }
+              model.id === modelId
+                ? {
+                    ...model,
+                    data: [...data, { id: newId, text: "" }],
+                  }
                 : model
-            )
+            ),
           },
         };
       });
@@ -312,11 +297,11 @@ export const useAddDataHandler = (
 
 export const useUpdateEndpointsHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (updatedEndpoints: Endpoint[]) => {
-      console.log('useUpdateEndpointsHandler', updatedEndpoints);
-      
+      console.log("useUpdateEndpointsHandler", updatedEndpoints);
+
       setSystemDesignState((prevState: SystemDesignState) => ({
         ...prevState,
         systemAPIs: {
@@ -330,54 +315,44 @@ export const useUpdateEndpointsHandler = (
 
 export const useAddEndpointsHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
-  useCallback(
-    () => {
-      console.log('useAddEndpointsHandler');
-      
-      setSystemDesignState((prevState: SystemDesignState) => {
-        const endpoints = prevState.systemAPIs.endpoints;
-        
-        // Find the next available id by checking if the length exists
-        let newId = endpoints.length;
+) =>
+  useCallback(() => {
+    console.log("useAddEndpointsHandler");
 
-        // Ensure there isn't already an ID matching the current length
-        while (endpoints.some(endpoint => endpoint.id === newId)) {
-          newId++; // Increment until you find an available id
-        }
+    setSystemDesignState((prevState: SystemDesignState) => {
+      const endpoints = prevState.systemAPIs.endpoints;
 
-        const newEndpoint = {
-          id: newId,
-          name: '',
-          params: [], // Initialize empty params
-          returns: [], // Initialize empty returns
-          notes: '',
-        };
+      let newId = endpoints.length;
 
-        return {
-          ...prevState,
-          systemAPIs: {
-            ...prevState.systemAPIs,
-            endpoints: [
-              ...endpoints, 
-              newEndpoint // Use the computed newId
-            ],
-          },
-        };
-      });
-    },
-    [setSystemDesignState]
-  );
+      while (endpoints.some((endpoint) => endpoint.id === newId)) {
+        newId++;
+      }
 
-  
+      const newEndpoint = {
+        id: newId,
+        name: "",
+        params: [],
+        returns: [],
+        notes: "",
+      };
+
+      return {
+        ...prevState,
+        systemAPIs: {
+          ...prevState.systemAPIs,
+          endpoints: [...endpoints, newEndpoint],
+        },
+      };
+    });
+  }, [setSystemDesignState]);
+
 export const useDeleteEndpointsHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (endpointId: number) => {
-      console.log('useDeleteEndpointsHandler', );
+      console.log("useDeleteEndpointsHandler");
       setSystemDesignState((prevState: SystemDesignState) => {
-
         const endpoints = prevState.systemAPIs.endpoints;
 
         return {
@@ -385,9 +360,9 @@ export const useDeleteEndpointsHandler = (
           systemAPIs: {
             ...prevState.systemAPIs,
             endpoints: endpoints.filter(
-              (endpoint) =>  endpoint.id !== endpointId
+              (endpoint) => endpoint.id !== endpointId
             ),
-          }
+          },
         };
       });
     },
@@ -396,11 +371,11 @@ export const useDeleteEndpointsHandler = (
 
 export const useUpdateEndpointNameHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (endpointId: number, name: string) => {
-      console.log('useUpdateEndpointNameHandler', endpointId, name);
-      
+      console.log("useUpdateEndpointNameHandler", endpointId, name);
+
       setSystemDesignState((prevState: SystemDesignState) => {
         const endpoints = prevState.systemAPIs.endpoints;
 
@@ -408,17 +383,15 @@ export const useUpdateEndpointNameHandler = (
           ...prevState,
           systemAPIs: {
             ...prevState.systemAPIs,
-            endpoints: endpoints.map(
-              (endpoint) => 
-                endpoint.id === endpointId 
-                  ? {
+            endpoints: endpoints.map((endpoint) =>
+              endpoint.id === endpointId
+                ? {
                     ...endpoint,
                     name: name,
                   }
-                  : endpoint
+                : endpoint
             ),
           },
-
         };
       });
     },
@@ -427,11 +400,11 @@ export const useUpdateEndpointNameHandler = (
 
 export const useUpdateEndpointNotesHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (endpointId: number, notes: string) => {
-      console.log('useUpdateEndpointNotesHandler', endpointId, notes);
-      
+      console.log("useUpdateEndpointNotesHandler", endpointId, notes);
+
       setSystemDesignState((prevState: SystemDesignState) => {
         const endpoints = prevState.systemAPIs.endpoints;
 
@@ -439,17 +412,15 @@ export const useUpdateEndpointNotesHandler = (
           ...prevState,
           systemAPIs: {
             ...prevState.systemAPIs,
-            endpoints: endpoints.map(
-              (endpoint) => 
-                endpoint.id === endpointId 
-                  ? {
+            endpoints: endpoints.map((endpoint) =>
+              endpoint.id === endpointId
+                ? {
                     ...endpoint,
                     notes: notes,
                   }
-                  : endpoint
+                : endpoint
             ),
           },
-
         };
       });
     },
@@ -458,11 +429,11 @@ export const useUpdateEndpointNotesHandler = (
 
 export const useUpdateReturnsHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (endpointId: number, returnId: number, returnText: string) => {
-      console.log('useUpdateReturnsHandler', endpointId, returnId, returnText);
-      
+      console.log("useUpdateReturnsHandler", endpointId, returnId, returnText);
+
       setSystemDesignState((prevState: SystemDesignState) => {
         const endpoints = prevState.systemAPIs.endpoints;
 
@@ -470,21 +441,19 @@ export const useUpdateReturnsHandler = (
           ...prevState,
           systemAPIs: {
             ...prevState.systemAPIs,
-            endpoints: endpoints.map(
-              (endpoint) => 
-                endpoint.id === endpointId 
-                  ? {
+            endpoints: endpoints.map((endpoint) =>
+              endpoint.id === endpointId
+                ? {
                     ...endpoint,
                     returns: endpoint.returns.map((endpointReturn) =>
                       endpointReturn.id === returnId
                         ? { ...endpointReturn, text: returnText }
                         : endpointReturn
-                    )
+                    ),
                   }
-                  : endpoint
+                : endpoint
             ),
           },
-
         };
       });
     },
@@ -493,11 +462,11 @@ export const useUpdateReturnsHandler = (
 
 export const useDeleteReturnsHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (endpointId: number, returnId: number) => {
-      console.log('useDeleteReturnsHandler', endpointId, returnId);
-      
+      console.log("useDeleteReturnsHandler", endpointId, returnId);
+
       setSystemDesignState((prevState: SystemDesignState) => {
         const endpoints = prevState.systemAPIs.endpoints;
 
@@ -505,20 +474,18 @@ export const useDeleteReturnsHandler = (
           ...prevState,
           systemAPIs: {
             ...prevState.systemAPIs,
-            endpoints: endpoints.map(
-              (endpoint) => 
-                endpoint.id === endpointId 
-                  ? {
+            endpoints: endpoints.map((endpoint) =>
+              endpoint.id === endpointId
+                ? {
                     ...endpoint,
-                    returns: endpoint.returns.filter((endpointReturn) =>
-                      endpointReturn.id !== returnId 
-                    )
+                    returns: endpoint.returns.filter(
+                      (endpointReturn) => endpointReturn.id !== returnId
+                    ),
                   }
-                  : endpoint
+                : endpoint
             ),
           },
         };
-        
       });
     },
     [setSystemDesignState]
@@ -526,19 +493,21 @@ export const useDeleteReturnsHandler = (
 
 export const useAddReturnsHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (endpointId: number) => {
-      console.log('useAddReturnsHandler');
-      
+      console.log("useAddReturnsHandler");
+
       setSystemDesignState((prevState: SystemDesignState) => {
         const endpoints = prevState.systemAPIs.endpoints;
-        const endpoint = endpoints.find((endpoint) => endpoint.id === endpointId);
+        const endpoint = endpoints.find(
+          (endpoint) => endpoint.id === endpointId
+        );
         const returns = endpoint!.returns;
         let newId = returns.length;
 
-        while (returns.some(endpointReturn => endpointReturn.id === newId)) {
-          newId++; // Increment until available id found
+        while (returns.some((endpointReturn) => endpointReturn.id === newId)) {
+          newId++;
         }
 
         return {
@@ -546,16 +515,13 @@ export const useAddReturnsHandler = (
           systemAPIs: {
             ...prevState.systemAPIs,
             endpoints: endpoints.map((endpoint) =>
-              endpoint.id === endpointId 
-                ?  {
-                  ...endpoint,
-                  returns: [
-                    ...returns,
-                    { id: newId, text: '' }
-                  ]
-                }
+              endpoint.id === endpointId
+                ? {
+                    ...endpoint,
+                    returns: [...returns, { id: newId, text: "" }],
+                  }
                 : endpoint
-            )
+            ),
           },
         };
       });
@@ -565,11 +531,11 @@ export const useAddReturnsHandler = (
 
 export const useUpdateParamsHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (endpointId: number, paramId: number, paramText: string) => {
-      console.log('useUpdateParamsHandler', endpointId, paramId);
-      
+      console.log("useUpdateParamsHandler", endpointId, paramId);
+
       setSystemDesignState((prevState: SystemDesignState) => {
         const endpoints = prevState.systemAPIs.endpoints;
 
@@ -577,21 +543,19 @@ export const useUpdateParamsHandler = (
           ...prevState,
           systemAPIs: {
             ...prevState.systemAPIs,
-            endpoints: endpoints.map(
-              (endpoint) => 
-                endpoint.id === endpointId 
-                  ? {
+            endpoints: endpoints.map((endpoint) =>
+              endpoint.id === endpointId
+                ? {
                     ...endpoint,
                     params: endpoint.params.map((param) =>
                       param.id === paramId
                         ? { ...param, text: paramText }
                         : param
-                    )
+                    ),
                   }
-                  : endpoint
+                : endpoint
             ),
           },
-
         };
       });
     },
@@ -600,11 +564,11 @@ export const useUpdateParamsHandler = (
 
 export const useDeleteParamsHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (endpointId: number, paramId: number) => {
-      console.log('useDeleteParamsHandler', endpointId, paramId);
-      
+      console.log("useDeleteParamsHandler", endpointId, paramId);
+
       setSystemDesignState((prevState: SystemDesignState) => {
         const endpoints = prevState.systemAPIs.endpoints;
 
@@ -612,20 +576,18 @@ export const useDeleteParamsHandler = (
           ...prevState,
           systemAPIs: {
             ...prevState.systemAPIs,
-            endpoints: endpoints.map(
-              (endpoint) => 
-                endpoint.id === endpointId 
-                  ? {
+            endpoints: endpoints.map((endpoint) =>
+              endpoint.id === endpointId
+                ? {
                     ...endpoint,
-                    params: endpoint.params.filter((param) =>
-                      param.id !== paramId 
-                    )
+                    params: endpoint.params.filter(
+                      (param) => param.id !== paramId
+                    ),
                   }
-                  : endpoint
+                : endpoint
             ),
           },
         };
-        
       });
     },
     [setSystemDesignState]
@@ -633,19 +595,21 @@ export const useDeleteParamsHandler = (
 
 export const useAddParamsHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (endpointId: number) => {
-      console.log('useAddParamsHandler');
-      
+      console.log("useAddParamsHandler");
+
       setSystemDesignState((prevState: SystemDesignState) => {
         const endpoints = prevState.systemAPIs.endpoints;
-        const endpoint = endpoints.find((endpoint) => endpoint.id === endpointId);
+        const endpoint = endpoints.find(
+          (endpoint) => endpoint.id === endpointId
+        );
         const params = endpoint!.params;
         let newId = params.length;
 
-        while (params.some(param => param.id === newId)) {
-          newId++; // Increment until available id found
+        while (params.some((param) => param.id === newId)) {
+          newId++;
         }
 
         return {
@@ -653,16 +617,13 @@ export const useAddParamsHandler = (
           systemAPIs: {
             ...prevState.systemAPIs,
             endpoints: endpoints.map((endpoint) =>
-              endpoint.id === endpointId 
-                ?  {
-                  ...endpoint,
-                  params: [
-                    ...params,
-                    { id: newId, text: '' }
-                  ]
-                }
+              endpoint.id === endpointId
+                ? {
+                    ...endpoint,
+                    params: [...params, { id: newId, text: "" }],
+                  }
                 : endpoint
-            )
+            ),
           },
         };
       });
@@ -672,33 +633,33 @@ export const useAddParamsHandler = (
 
 export const useUpdateCapacityEstimatesHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (estimate: string) => {
-      console.log('useUpdateCapacityEstimatesHandler', estimate);
+      console.log("useUpdateCapacityEstimatesHandler", estimate);
       setSystemDesignState((prevState: SystemDesignState) => ({
         ...prevState,
         scaleEstimates: {
           ...prevState.scaleEstimates,
           capacity: estimate,
-        }
+        },
       }));
-    }, 
+    },
     [setSystemDesignState]
   );
 
 export const useUpdateStorageEstimatesHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (estimate: string) => {
-      console.log('useUpdateStorageEstimatesHandler', estimate);
+      console.log("useUpdateStorageEstimatesHandler", estimate);
       setSystemDesignState((prevState: SystemDesignState) => ({
         ...prevState,
         scaleEstimates: {
           ...prevState.scaleEstimates,
           storage: estimate,
-        }
+        },
       }));
     },
     [setSystemDesignState]
@@ -706,16 +667,16 @@ export const useUpdateStorageEstimatesHandler = (
 
 export const useUpdateBandwidthEstimatesHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (estimate: string) => {
-      console.log('useUpdateBandwidthEstimatesHandler', estimate);
+      console.log("useUpdateBandwidthEstimatesHandler", estimate);
       setSystemDesignState((prevState: SystemDesignState) => ({
         ...prevState,
         scaleEstimates: {
           ...prevState.scaleEstimates,
           bandwidth: estimate,
-        }
+        },
       }));
     },
     [setSystemDesignState]
@@ -723,20 +684,20 @@ export const useUpdateBandwidthEstimatesHandler = (
 
 export const useUpdateNonFunctionalRequirementsHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (reqId: number, reqText: string) => {
-      console.log('useUpdateNonFunctionalRequirementsHandler', reqId, reqText);
+      console.log("useUpdateNonFunctionalRequirementsHandler", reqId, reqText);
       const updatedReq = {
         id: reqId,
         text: reqText,
-      }
+      };
       setSystemDesignState((prevState: SystemDesignState) => ({
         ...prevState,
         requirements: {
           ...prevState.requirements,
           nonFunctional: prevState.requirements.nonFunctional.map(
-            (requirement) => 
+            (requirement) =>
               requirement.id === reqId ? updatedReq : requirement
           ),
         },
@@ -747,50 +708,44 @@ export const useUpdateNonFunctionalRequirementsHandler = (
 
 export const useAddNonFunctionalRequirementsHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
-  useCallback(
-    () => {
-      console.log('useAddNonFunctionalRequirementsHandler');
-      
-      setSystemDesignState((prevState: SystemDesignState) => {
-        const nonFunctionalRequirements = prevState.requirements.nonFunctional;
-        
-        // Find the next available id by checking if the length exists
-        let newId = nonFunctionalRequirements.length;
+) =>
+  useCallback(() => {
+    console.log("useAddNonFunctionalRequirementsHandler");
 
-        // Ensure there isn't already an ID matching the current length
-        while (nonFunctionalRequirements.some(req => req.id === newId)) {
-          newId++; // Increment until you find an available id
-        }
+    setSystemDesignState((prevState: SystemDesignState) => {
+      const nonFunctionalRequirements = prevState.requirements.nonFunctional;
 
-        return {
-          ...prevState,
-          requirements: {
-            ...prevState.requirements,
-            nonFunctional: [
-              ...nonFunctionalRequirements, 
-              { id: newId, text: '' } // Use the computed newId
-            ],
-          },
-        };
-      });
-    },
-    [setSystemDesignState]
-  );
+      let newId = nonFunctionalRequirements.length;
 
-  
+      while (nonFunctionalRequirements.some((req) => req.id === newId)) {
+        newId++;
+      }
+
+      return {
+        ...prevState,
+        requirements: {
+          ...prevState.requirements,
+          nonFunctional: [
+            ...nonFunctionalRequirements,
+            { id: newId, text: "" },
+          ],
+        },
+      };
+    });
+  }, [setSystemDesignState]);
+
 export const useDeleteNonFunctionalRequirementsHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (req: Requirement) => {
-      console.log('useDeleteNonFunctionalRequirementsHandler', );
+      console.log("useDeleteNonFunctionalRequirementsHandler");
       setSystemDesignState((prevState: SystemDesignState) => ({
         ...prevState,
         requirements: {
           ...prevState.requirements,
           nonFunctional: prevState.requirements.nonFunctional.filter(
-            (requirement) =>  requirement.id !== req.id
+            (requirement) => requirement.id !== req.id
           ),
         },
       }));
@@ -800,21 +755,20 @@ export const useDeleteNonFunctionalRequirementsHandler = (
 
 export const useUpdateFunctionalRequirementsHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (reqId: number, reqText: string) => {
-      console.log('useUpdateRequirementsHandler', reqId, reqText);
+      console.log("useUpdateRequirementsHandler", reqId, reqText);
       const updatedReq = {
         id: reqId,
         text: reqText,
-      }
+      };
       setSystemDesignState((prevState: SystemDesignState) => ({
         ...prevState,
         requirements: {
           ...prevState.requirements,
-          functional: prevState.requirements.functional.map(
-            (requirement) => 
-              requirement.id === reqId ? updatedReq : requirement
+          functional: prevState.requirements.functional.map((requirement) =>
+            requirement.id === reqId ? updatedReq : requirement
           ),
         },
       }));
@@ -824,50 +778,41 @@ export const useUpdateFunctionalRequirementsHandler = (
 
 export const useAddFunctionalRequirementsHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
-  useCallback(
-    () => {
-      console.log('useAddFunctionalRequirementsHandler');
-      
-      setSystemDesignState((prevState: SystemDesignState) => {
-        const functionalRequirements = prevState.requirements.functional;
-        
-        // Find the next available id by checking if the length exists
-        let newId = functionalRequirements.length;
+) =>
+  useCallback(() => {
+    console.log("useAddFunctionalRequirementsHandler");
 
-        // Ensure there isn't already an ID matching the current length
-        while (functionalRequirements.some(req => req.id === newId)) {
-          newId++; // Increment until you find an available id
-        }
+    setSystemDesignState((prevState: SystemDesignState) => {
+      const functionalRequirements = prevState.requirements.functional;
 
-        return {
-          ...prevState,
-          requirements: {
-            ...prevState.requirements,
-            functional: [
-              ...functionalRequirements, 
-              { id: newId, text: '' } // Use the computed newId
-            ],
-          },
-        };
-      });
-    },
-    [setSystemDesignState]
-  );
+      let newId = functionalRequirements.length;
 
+      while (functionalRequirements.some((req) => req.id === newId)) {
+        newId++;
+      }
+
+      return {
+        ...prevState,
+        requirements: {
+          ...prevState.requirements,
+          functional: [...functionalRequirements, { id: newId, text: "" }],
+        },
+      };
+    });
+  }, [setSystemDesignState]);
 
 export const useDeleteFunctionalRequirementsHandler = (
   setSystemDesignState: React.Dispatch<React.SetStateAction<SystemDesignState>>
-) => 
+) =>
   useCallback(
     (req: Requirement) => {
-      console.log('useDeleteFunctionalRequirementsHandler', );
+      console.log("useDeleteFunctionalRequirementsHandler");
       setSystemDesignState((prevState: SystemDesignState) => ({
         ...prevState,
         requirements: {
           ...prevState.requirements,
           functional: prevState.requirements.functional.filter(
-            (requirement) =>  requirement.id !== req.id
+            (requirement) => requirement.id !== req.id
           ),
         },
       }));
@@ -880,19 +825,18 @@ export const useNodesChangeHandler = (
 ) =>
   useCallback(
     (changes: NodeChange<AppNode>[]) => {
-      console.log('useNodesChangeHandler called with changes:', changes);
-      
-      // Log the previous state and the chdanges being applied
+      console.log("useNodesChangeHandler called with changes:", changes);
+
       setSystemDesignState((prevState: SystemDesignState) => {
-        console.log('Previous state:', prevState);
+        console.log("Previous state:", prevState);
         const updatedState = {
           ...prevState,
           diagram: {
-            ...prevState.diagram, // Spread the existing diagram object
-            nodes: applyNodeChanges(changes, prevState.diagram.nodes), // Update nodes inside diagram
+            ...prevState.diagram,
+            nodes: applyNodeChanges(changes, prevState.diagram.nodes),
           },
         };
-        console.log('Updated state:', updatedState);
+        console.log("Updated state:", updatedState);
         return updatedState;
       });
     },
@@ -907,13 +851,11 @@ export const useAddNodesHandler = (
       console.log("useAddNodesHandler", newNodes);
       setSystemDesignState((prevState: SystemDesignState) => {
         const nodes = prevState.diagram.nodes;
-        // Find the next available id by checking if the length exists
         let newId = nodes.length;
-        const newIdStr = newId + ": " +newNodes[0].data.label;
+        const newIdStr = newId + ": " + newNodes[0].data.label;
 
-        // Ensure there isn't already an ID matching the current length
-        while (nodes.some(node => node.id === newIdStr)) {
-          newId++; // Increment until you find an available id
+        while (nodes.some((node) => node.id === newIdStr)) {
+          newId++;
         }
 
         newNodes[0].id = newIdStr;
@@ -923,12 +865,11 @@ export const useAddNodesHandler = (
 
         return {
           ...prevState,
-          //nodes: [...prevState.diagram.nodes, ...newNodes], // Append new nodes to existing nodes
           diagram: {
-            ...prevState.diagram, // Spread the existing diagram object
-            nodes: [...prevState.diagram.nodes, ...newNodes], // Append new nodes to existing nodes
+            ...prevState.diagram,
+            nodes: [...prevState.diagram.nodes, ...newNodes],
           },
-        }
+        };
       });
     },
     [setSystemDesignState]
@@ -943,31 +884,27 @@ export const useUpdateNodesHandler = (
       console.log("useUpdateNodesHandler", updatedNode);
 
       setSystemDesignState((prevState: SystemDesignState) => {
-
         const nodes = prevState.diagram.nodes;
 
         let newId = nodes.length;
         let newIdStr = newId + updatedNode.data.label;
-        
-        // Ensure there isn't already an ID matching the current newId + label
-        while (nodes.some(node => node.id === newIdStr)) {
-          newId++; // Increment until you find an available id
-          newIdStr = newId + updatedNode.data.label; // Update the newIdStr after incrementing
+
+        while (nodes.some((node) => node.id === newIdStr)) {
+          newId++;
+          newIdStr = newId + updatedNode.data.label;
         }
-        
+
         const currentId = updatedNode.id;
-        // updatedNode.id = newIdStr; // Assign the unique ID to the updated node
-        
-          return {
+
+        return {
           ...prevState,
           diagram: {
-            ...prevState.diagram, // Spread the existing diagram object
-            //nodes: [...prevState.diagram.nodes, ...newNodes], // Append new nodes to existing nodes
+            ...prevState.diagram,
             nodes: prevState.diagram.nodes.map((node) =>
               node.id === currentId ? updatedNode : node
             ),
           },
-        }
+        };
       });
 
       console.log("updated States", systemDesignState.diagram.nodes);
@@ -983,7 +920,7 @@ export const useEdgesChangeHandler = (
       setSystemDesignState((prevState: SystemDesignState) => ({
         ...prevState,
         diagram: {
-          ...prevState.diagram, // Spread the existing diagram object
+          ...prevState.diagram,
           edges: applyEdgeChanges(changes, prevState.diagram.edges),
         },
       })),
@@ -997,25 +934,24 @@ export const useConnectionHandler = (
     (connection) => {
       console.log("connection: ", connection);
       setSystemDesignState((prevState: SystemDesignState) => {
-
         const edges = prevState.diagram.edges;
 
         let newId = edges.length;
 
-        while (edges.some(edge => edge.id === newId + "")) {
+        while (edges.some((edge) => edge.id === newId + "")) {
           newId++;
         }
 
         const nodes = prevState.diagram.nodes;
 
-        const sourceNode= nodes.find((node) => node.id === connection.source);
+        const sourceNode = nodes.find((node) => node.id === connection.source);
         const targetNode = nodes.find((node) => node.id === connection.target);
 
         const data = {
           dataFlow: `Data Flows from ${sourceNode?.data.label} to ${targetNode?.data.label}`,
-          notes: ""
-        }
-        
+          notes: "",
+        };
+
         return {
           ...prevState,
           diagram: {
@@ -1026,12 +962,11 @@ export const useConnectionHandler = (
                 id: "" + newId,
                 type: "system-component-edge",
                 data: data,
-
               },
               prevState.diagram.edges
-            ), // Correct object spread
+            ),
           },
-        }
+        };
       });
     },
     [setSystemDesignState]
@@ -1044,25 +979,28 @@ export const useUpdateConnectionHandler = (
     (connection) => {
       console.log("useUpdateConnectionHandler: ", connection);
       setSystemDesignState((prevState: SystemDesignState) => {
-
         const edges = prevState.diagram.edges;
 
         let newId = edges.length;
 
-        while (edges.some(edge => edge.id === newId + "")) {
+        while (edges.some((edge) => edge.id === newId + "")) {
           newId++;
         }
 
         const nodes = prevState.diagram.nodes;
 
-        const sourceNodeLabel = nodes.find((node) => node.id === connection.source) || "Node Not Found";
-        const targetNodeLabel = nodes.find((node) => node.id === connection.target) || "Node Not Found";
+        const sourceNodeLabel =
+          nodes.find((node) => node.id === connection.source) ||
+          "Node Not Found";
+        const targetNodeLabel =
+          nodes.find((node) => node.id === connection.target) ||
+          "Node Not Found";
 
         const data = {
           dataFlow: `Data Flows between ${sourceNodeLabel} and ${targetNodeLabel}`,
-          notes: ""
-        }
-        
+          notes: "",
+        };
+
         return {
           ...prevState,
           diagram: {
@@ -1075,12 +1013,10 @@ export const useUpdateConnectionHandler = (
                 data: data,
               },
               prevState.diagram.edges
-            ), // Correct object spread
+            ),
           },
-        }
+        };
       });
     },
     [setSystemDesignState]
   );
-
-
