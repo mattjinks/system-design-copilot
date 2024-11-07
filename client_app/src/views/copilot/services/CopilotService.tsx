@@ -47,8 +47,8 @@ export default function CopilotService() {
     });
 
     const response = await fetch(
-      // `https://chat-api-service-1001003243492.us-central1.run.app/chat-stream?sessionId=${sessionId}&chatKey=${chatKey}`,
-      `http://localhost:8080/chat-stream?sessionId=${sessionId}&chatKey=${chatKey}`,
+      `https://chat-api-service-1001003243492.us-central1.run.app/chat-stream?sessionId=${sessionId}&chatKey=${chatKey}`,
+      // `http://localhost:8080/chat-stream?sessionId=${sessionId}&chatKey=${chatKey}`,
       {
         method: "POST",
         headers: {
@@ -115,8 +115,8 @@ export default function CopilotService() {
     console.log("payload: ", payload);
 
     const response = await fetch(
-      // `https://chat-api-service-1001003243492.us-central1.run.app/chat-stream?sessionId=${sessionId}&chatKey=${chatKey}`,
-      `http://localhost:8080/chat-stream?sessionId=${sessionId}&chatKey=${chatKey}`,
+      `https://chat-api-service-1001003243492.us-central1.run.app/chat-stream?sessionId=${sessionId}&chatKey=${chatKey}`,
+      // `http://localhost:8080/chat-stream?sessionId=${sessionId}&chatKey=${chatKey}`,
       {
         method: "POST",
         headers: {
@@ -177,8 +177,8 @@ export default function CopilotService() {
     console.log("payload: ", payload);
 
     const response = await fetch(
-      // `https://chat-api-service-1001003243492.us-central1.run.app/chat-stream?sessionId=${sessionId}&chatKey=${chatKey}`,
-      `http://localhost:8080/chat-stream?sessionId=${sessionId}&chatKey=${chatKey}`,
+      `https://chat-api-service-1001003243492.us-central1.run.app/chat-stream?sessionId=${sessionId}&chatKey=${chatKey}`,
+      // `http://localhost:8080/chat-stream?sessionId=${sessionId}&chatKey=${chatKey}`,
       {
         method: "POST",
         headers: {
