@@ -162,14 +162,15 @@ func main() {
 
 	router.POST("/chat-stream", streamChat) 
 
-	router.Run("0.0.0.0:8080") 
-	// router.Run("localhost:8080") 
+	// router.Run("0.0.0.0:8080") 
+	router.Run("localhost:8080") 
 
 }
 
 func corsMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "https://main.d2oq7odcbvfay0.amplifyapp.com")
+		// c.Writer.Header().Set("Access-Control-Allow-Origin", "https://main.d2oq7odcbvfay0.amplifyapp.com")
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, sessionId, chatKey")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -258,8 +259,9 @@ func streamChat(c *gin.Context) {
 				Content: azopenai.NewChatRequestUserMessageContent(
 					fmt.Sprintf(
 						`Here is a description of the system I plan to design: '%s'. 
-						Could you assess whether this description is clear in 2-3 sentences? 
-						Your response should start with "Your description of"`, 
+						Could you assess whether this description is clear? 
+						If so simply respond with something like "Your description of (insert description) makes sense, I will keep your description
+						in mind when assessing your design decisions"`, 
 						system.Description,
 					),
 				),
@@ -403,7 +405,8 @@ func streamChat(c *gin.Context) {
 	c.Header("Content-Type", "text/event-stream")
 	c.Header("Cache-Control", "no-cache")
 	c.Header("Connection", "keep-alive")
-	c.Header("Access-Control-Allow-Origin", "https://main.d2oq7odcbvfay0.amplifyapp.com")
+	// c.Header("Access-Control-Allow-Origin", "https://main.d2oq7odcbvfay0.amplifyapp.com")
+	c.Header("Access-Control-Allow-Origin", "*")
 	c.Header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 	c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Authorization, sessionId, chatKey")
 	c.Header("Access-Control-Allow-Credentials", "true")

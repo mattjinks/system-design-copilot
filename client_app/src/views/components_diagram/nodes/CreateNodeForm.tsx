@@ -34,17 +34,17 @@ export function CreateNodeForm({
 
   const handleFormSubmit = () => {
     console.log("Form Submit");
-    setLabel("");
-    setNotes("");
-    setColor("white");
-    setShape("square");
+    // setLabel("");
+    // setNotes("");
+    // setColor("white");
+    // setShape("square");
     onSubmit({
       label: label,
       notes: notes,
       leftHandle: leftHandle,
       rightHandle: rightHandle,
       shape: shape,
-      color: getColorValue(color),
+      color: color,
     });
     handleClose();
   };
