@@ -261,7 +261,8 @@ func streamChat(c *gin.Context) {
 						`Here is a description of the system I plan to design: '%s'. 
 						Could you assess whether this description is clear? 
 						If so simply respond with something like "Your description of (insert description) makes sense, I will keep your description
-						in mind when assessing your design decisions"`, 
+						in mind when assessing your design decisions"
+						If the system description is empty or missing, just respond with "Please fill out description form for feedback`, 
 						system.Description,
 					),
 				),
@@ -271,7 +272,9 @@ func streamChat(c *gin.Context) {
 			userMessage = &azopenai.ChatRequestUserMessage{
 				Content: azopenai.NewChatRequestUserMessageContent(
 					fmt.Sprintf(
-						`Please evaluate if these system requirements: '%v' align well with the system's overall description: '%s'.`, 
+						`Please evaluate if these system requirements: '%v' align well with the system's overall description: '%s'. 
+						Also analyze and report the tradeoffs of my non-functional requirements.
+						If the system requirements are empty or missing, just respond with "Please fill out requirements forms for feedback`, 
 						system.Requirements, 
 						system.Description,
 					),
@@ -282,7 +285,8 @@ func streamChat(c *gin.Context) {
 			userMessage = &azopenai.ChatRequestUserMessage{
 				Content: azopenai.NewChatRequestUserMessageContent(
 					fmt.Sprintf(
-						"Based on the system description '%s' and requirements '%v', do these scale estimates: '%v' seem appropriate?", 
+						`Based on the system description '%s' and requirements '%v', do these scale estimates: '%v' seem appropriate?
+						If the scale estimates are empty or missing, just respond with "Please fill out scale estimates forms`, 
 						system.Description, 
 						system.Requirements, 
 						system.ScaleEstimates,
@@ -295,7 +299,8 @@ func streamChat(c *gin.Context) {
 				Content: azopenai.NewChatRequestUserMessageContent(
 					fmt.Sprintf(
 						`Evaluate these API endpoints: '%v' and let me know if they align with the system description '%s', requirements '%v', 
-						and scale estimates '%v'.`, 
+						and scale estimates '%v'.
+						If the API endpoints are empty or missing, just respond with "Please fill provide endpoints`, 
 						system.SystemAPIs, 
 						system.Description, 
 						system.Requirements, 
@@ -309,7 +314,8 @@ func streamChat(c *gin.Context) {
 				Content: azopenai.NewChatRequestUserMessageContent(
 					fmt.Sprintf(
 						`Evaluate my database-schema/models: '%v' and let me know if they align with the system description '%s', requirements '
-						%v', scale estimates '%v', and apis.`, 
+						%v', scale estimates '%v', and apis.
+						If the database-schema/models are empty or missing, just respond with "Please fill provide data`, 
 						system.DatabaseSchema, 
 						system.Description, 
 						system.Requirements, 
@@ -324,7 +330,8 @@ func streamChat(c *gin.Context) {
 				Content: azopenai.NewChatRequestUserMessageContent(
 					fmt.Sprintf(`
 						Assess this system flow diagram: '%v' and let me know if it aligns with the system description '%s', requirements '%v', 
-						scale estimates '%v', API endpoints '%v', and database schema '%v'.`, 
+						scale estimates '%v', API endpoints '%v', and database schema '%v'.
+						If the flow diagram is empty or missing, just respond with "Please create diagram`, 
 						system.Diagram, 
 						system.Description, 
 						system.Requirements, 
@@ -339,7 +346,8 @@ func streamChat(c *gin.Context) {
 			userMessage = &azopenai.ChatRequestUserMessage{
 				Content: azopenai.NewChatRequestUserMessageContent(
 					fmt.Sprintf(`Please evaluate these additional considerations/notes: '%v' to see if they align with the system description '
-					%s', requirements '%v', scale estimates '%v', API endpoints '%v', database schema '%v', and flow diagram '%v'.`, 
+					%s', requirements '%v', scale estimates '%v', API endpoints '%v', database schema '%v', and flow diagram '%v'.
+					If is empty or missing, just respond with "Please fill out extra considerations form for feedback`, 
 					system.ExtraConsiderations, 
 					system.Description, 
 					system.Requirements, 
