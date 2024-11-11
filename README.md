@@ -2,6 +2,8 @@
 
 **Link to Application**: [AI-Powered System Design Copilot](https://main.d2oq7odcbvfay0.amplifyapp.com/)
 
+**Demo**: https://youtu.be/s2vfirCqVfo?si=p6f9v8qMeqfUEhWD
+
 ## Description
 
 This project is an AI-powered system design copilot, built to help users learn and create software architectures by offering real-time feedback on design decisions and tradeoffs. It features an interactive web app developed with React, including a chat interface that guides users step-by-step through design choices. Users can construct, visualize, and receive feedback on system design diagrams.
@@ -10,10 +12,10 @@ The backend, developed with Go and the Azure OpenAI SDK, uses a chat-stream API 
 
 ## Technologies Used
 
+- **Microsoft Azure OpenAI**
 - **Go**
 - **React**
-- **React Flow**
-- **Microsoft Azure OpenAI**
+- **TypeScript**
 - **Docker**
 
 ## Deployment
