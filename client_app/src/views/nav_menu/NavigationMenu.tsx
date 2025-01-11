@@ -8,7 +8,7 @@ interface NavigationMenuProps {
 
 export default function NavigationMenu({ onItemSelect }: NavigationMenuProps) {
   const [activeItem, setActiveItem] = useState("description");
-  const [hideMenu, setHideMenu] = useState(true);
+  const [hideMenu, setHideMenu] = useState(false);
 
   const handleItemClick = (item: string) => {
     setActiveItem(item);
