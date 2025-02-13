@@ -1,7 +1,5 @@
 # AI-Powered System Design Copilot
 
-**Link to Application**: [AI-Powered System Design Copilot](https://main.d2oq7odcbvfay0.amplifyapp.com/)
-
 **Demo**: https://youtu.be/s2vfirCqVfo?si=p6f9v8qMeqfUEhWD
 
 ## Description
